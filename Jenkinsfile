@@ -73,6 +73,8 @@ pipeline {
             steps {
                 script {
                     dockerBuild("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
+                    // Tag the image with the specified ImageTag if needed
+                    sh "docker tag ${params.DockerHubUser}/${params.ImageName}:latest ${params.DockerHubUser}/${params.ImageName}:${params.ImageTag}"
                 }
             }
         }
@@ -92,6 +94,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        // Push the tagged image
                         sh "docker image push ${params.DockerHubUser}/${params.ImageName}:${params.ImageTag}"
                     }
                 }
