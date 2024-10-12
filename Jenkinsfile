@@ -7,7 +7,7 @@ pipeline {
         choice(name: 'action', choices: 'create\ndelete', description: 'Choose create/Destroy')
         string(name: 'ImageName', description: "Name of the docker build", defaultValue: 'javapp')
         string(name: 'ImageTag', description: "Tag of the docker build", defaultValue: 'v1')
-        string(name: 'DockerHubUser', description: "Name of the Application", defaultValue: 'praveensingam1994')
+        string(name: 'DockerHubUser', description: "Name of the Application", defaultValue: 'rohhat') // Changed to your Docker Hub username
     }
 
     stages {
@@ -73,8 +73,6 @@ pipeline {
             steps {
                 script {
                     dockerBuild("${params.ImageName}", "${params.ImageTag}", "${params.DockerHubUser}")
-                    // Tag the image with the specified ImageTag if needed
-                    sh "docker tag ${params.DockerHubUser}/${params.ImageName}:latest ${params.DockerHubUser}/${params.ImageName}:${params.ImageTag}"
                 }
             }
         }
@@ -94,7 +92,6 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        // Push the tagged image
                         sh "docker image push ${params.DockerHubUser}/${params.ImageName}:${params.ImageTag}"
                     }
                 }
